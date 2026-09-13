@@ -1,5 +1,0 @@
-{
-  "framework": "nextjs",
-  "buildCommand": "cd ivy-homes-assessment && npm install && npm run build",
-  "outputDirectory": "ivy-homes-assessment/.next"
-}
