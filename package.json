@@ -1,0 +1,11 @@
+{
+  "name": "ivy-homes-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix ivy-homes-assessment run dev",
+    "build": "npm --prefix ivy-homes-assessment run build",
+    "start": "npm --prefix ivy-homes-assessment run start",
+    "lint": "npm --prefix ivy-homes-assessment run lint"
+  }
+}

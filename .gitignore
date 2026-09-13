@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+build/
+
+# Logs & Environment
+*.log
+.env*
+.DS_Store
+
+# IDE / Python / Cache
+.vscode/
+.idea/
+__pycache__/
+*.pyc
