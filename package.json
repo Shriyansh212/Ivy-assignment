@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "cd ivy-homes-assessment && npm install",
     "dev": "npm --prefix ivy-homes-assessment run dev",
-    "build": "npm --prefix ivy-homes-assessment run build",
+    "build": "cd ivy-homes-assessment && npm install && npm run build",
     "start": "npm --prefix ivy-homes-assessment run start",
     "lint": "npm --prefix ivy-homes-assessment run lint"
   }
