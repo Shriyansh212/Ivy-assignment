@@ -4,14 +4,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import ListingCard, { ListingItem } from '@/components/ListingCard';
 import FloatingOrbsCanvas from '@/components/3d/FloatingOrbsCanvas';
-import { Heart, Trash2, Building2 } from 'lucide-react';
+import { Heart, Trash2, Building2, Lock, KeyRound } from 'lucide-react';
 import answersData from '@/answers.json';
 import Link from 'next/link';
 import { useAuth } from '@/lib/AuthContext';
 import { getSavedListingIds, toggleSavedListingId, clearSavedListings } from '@/lib/savedListings';
 
 export default function SavedListingsPage() {
-  const { session } = useAuth();
+  const { session, isAuthenticated } = useAuth();
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [allListings, setAllListings] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,26 @@ export default function SavedListingsPage() {
         </div>
 
         {/* Content Grid */}
-        {loading ? (
+        {!isAuthenticated ? (
+          <div className="py-16 bg-white/80 border border-slate-200/80 rounded-3xl text-center p-8 space-y-5 shadow-bento-card backdrop-blur-md max-w-lg mx-auto">
+            <div className="w-14 h-14 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-7 h-7" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900">Saved Portfolio Gated</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              Bookmarking properties and managing saved residences requires an active account so your portfolio stays synchronized across devices.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/login?redirect=/saved"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>Sign In with Demo Account</span>
+              </Link>
+            </div>
+          </div>
+        ) : loading ? (
           <div className="py-20 flex flex-col items-center justify-center">
             <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
           </div>

@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import FloatingOrbsCanvas from '@/components/3d/FloatingOrbsCanvas';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, Search, MapPin, Layers, AlertCircle, CheckCircle2, Calendar, ShieldCheck, Tag, X, ExternalLink, Info, Check } from 'lucide-react';
+import { Building2, Search, MapPin, Layers, AlertCircle, CheckCircle2, Calendar, ShieldCheck, Tag, X, ExternalLink, Info, Check, Lock, KeyRound } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 export interface ProjectItem {
   project_id: string;
@@ -31,6 +33,7 @@ export interface ProjectItem {
 }
 
 export default function ProjectsPage() {
+  const { isAuthenticated } = useAuth();
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -310,15 +313,25 @@ export default function ProjectsPage() {
               {/* Source Link */}
               {selectedProject.project_url && (
                 <div className="pt-4 border-t border-slate-100 flex justify-end">
-                  <a
-                    href={selectedProject.project_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>View Project Source</span>
-                  </a>
+                  {isAuthenticated ? (
+                    <a
+                      href={selectedProject.project_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>View Project Source</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href="/login?redirect=/projects"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm uppercase tracking-wider"
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Sign In to Access Source</span>
+                    </Link>
+                  )}
                 </div>
               )}
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ListingCard, { ListingItem } from '@/components/ListingCard';
 import FloatingOrbsCanvas from '@/components/3d/FloatingOrbsCanvas';
@@ -10,7 +11,8 @@ import { useAuth } from '@/lib/AuthContext';
 import { getSavedListingIds, toggleSavedListingId } from '@/lib/savedListings';
 
 export default function BrowseListingsPage() {
-  const { session } = useAuth();
+  const router = useRouter();
+  const { session, isAuthenticated } = useAuth();
   const [listings, setListings] = useState<ListingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -51,6 +53,10 @@ export default function BrowseListingsPage() {
   }, [session]);
 
   const toggleSave = (id: string) => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/`);
+      return;
+    }
     const next = toggleSavedListingId(id);
     setSavedIds(next);
   };

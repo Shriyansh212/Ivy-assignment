@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import ListingCard, { ListingItem } from '@/components/ListingCard';
 import SilkMeshCanvas from '@/components/3d/SilkMeshCanvas';
-import { Heart, MapPin, Bed, Bath, Layers, CheckCircle2, AlertTriangle, ShieldAlert, ArrowLeft, Phone, User, Building, Info } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Layers, CheckCircle2, AlertTriangle, ShieldAlert, ArrowLeft, Phone, User, Building, Info, Lock, KeyRound } from 'lucide-react';
 import answersData from '@/answers.json';
 import { useAuth } from '@/lib/AuthContext';
 import { getSavedListingIds, toggleSavedListingId } from '@/lib/savedListings';
@@ -14,7 +15,7 @@ export default function ListingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { session } = useAuth();
+  const { session, isAuthenticated } = useAuth();
 
   const [listing, setListing] = useState<ListingItem | null>(null);
   const [allListings, setAllListings] = useState<ListingItem[]>([]);
@@ -41,6 +42,10 @@ export default function ListingDetailPage() {
   }, [session]);
 
   const toggleSave = (listingId: string) => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirect=/listings/${listingId}`);
+      return;
+    }
     const next = toggleSavedListingId(listingId);
     setSavedIds(next);
   };
@@ -252,12 +257,12 @@ export default function ListingDetailPage() {
             </div>
 
             {/* Technical Specs Bento Card */}
-            <div className="bg-white/80 border border-white/90 rounded-3xl p-8 space-y-6 shadow-bento-card backdrop-blur-xl">
+            <div className="relative bg-white/80 border border-white/90 rounded-3xl p-8 shadow-bento-card backdrop-blur-xl overflow-hidden">
               <h3 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-4 flex items-center gap-2">
                 <Info className="w-5 h-5 text-indigo-600" /> Technical Specifications
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-xs ${!isAuthenticated ? 'filter blur-[3.5px] select-none pointer-events-none' : ''}`}>
                 <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-500 uppercase tracking-wider font-medium">Listing ID</span>
                   <span className="font-mono text-slate-900 font-bold">{listing.listing_id}</span>
@@ -298,6 +303,27 @@ export default function ListingDetailPage() {
                   <span className="font-mono text-indigo-600 font-bold">{listing.project_id || 'Resale / Standalone'}</span>
                 </div>
               </div>
+
+              {!isAuthenticated && (
+                <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center z-20">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mb-3 shadow-sm">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 mb-1">
+                    Technical Specifications Protected
+                  </h4>
+                  <p className="text-xs text-slate-600 max-w-sm mb-4 leading-relaxed">
+                    Sign in with a demo account to unlock super built-up measurements, facing direction, covered parking slots, and GPS coordinates.
+                  </p>
+                  <Link
+                    href={`/login?redirect=/listings/${id}`}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+                  >
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>Sign In to Unlock Specs</span>
+                  </Link>
+                </div>
+              )}
             </div>
 
           </div>
@@ -332,23 +358,53 @@ export default function ListingDetailPage() {
               </button>
 
               <div className="pt-4 border-t border-slate-100 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] text-slate-400 uppercase tracking-wider block">Agent / Owner</span>
-                    <span className="font-bold text-slate-900 text-sm">{listing.posted_by_name || 'Verified Partner'}</span>
-                  </div>
-                </div>
+                {isAuthenticated ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <User className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] text-slate-400 uppercase tracking-wider block">Agent / Owner</span>
+                        <span className="font-bold text-slate-900 text-sm">{listing.posted_by_name || 'Verified Partner'}</span>
+                      </div>
+                    </div>
 
-                <a
-                  href={`tel:${listing.posted_by_contact}`}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span>Inquire Now ({listing.posted_by_contact || 'Contact'})</span>
-                </a>
+                    <a
+                      href={`tel:${listing.posted_by_contact}`}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+                    >
+                      <Phone className="w-4 h-4" />
+                      <span>Inquire Now ({listing.posted_by_contact || 'Contact'})</span>
+                    </a>
+                  </>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/70 text-slate-800 space-y-3">
+                    <div className="flex items-center gap-2 text-amber-800 font-bold text-xs uppercase tracking-wider">
+                      <Lock className="w-4 h-4 text-amber-600" />
+                      <span>Contact Info Protected</span>
+                    </div>
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs">
+                        <span className="font-mono text-slate-400 block">+91 ••••• •••••</span>
+                        <span className="text-[11px] text-slate-500 font-medium">Owner / Verified Partner</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Sign in to view owner phone numbers and submit direct purchase inquiries.
+                    </p>
+                    <Link
+                      href={`/login?redirect=/listings/${id}`}
+                      className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Sign In to View Contact</span>
+                    </Link>
+                  </div>
+                )}
               </div>
 
             </div>
@@ -396,13 +452,23 @@ export default function ListingDetailPage() {
               <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
             </button>
 
-            <a
-              href={`tel:${listing.posted_by_contact}`}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
-            >
-              <Phone className="w-4 h-4" />
-              <span>Contact Agent</span>
-            </a>
+            {isAuthenticated ? (
+              <a
+                href={`tel:${listing.posted_by_contact}`}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+              >
+                <Phone className="w-4 h-4" />
+                <span>Contact Agent</span>
+              </a>
+            ) : (
+              <Link
+                href={`/login?redirect=/listings/${id}`}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Sign in to Contact Agent</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

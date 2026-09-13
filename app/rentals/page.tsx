@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import FloatingOrbsCanvas from '@/components/3d/FloatingOrbsCanvas';
 import { motion, AnimatePresence } from 'framer-motion';
-import { KeyRound, Search, MapPin, Bed, Bath, Layers, Filter, ShieldCheck, DollarSign, Calendar, X, Phone, ExternalLink, Info, User, Building } from 'lucide-react';
+import { KeyRound, Search, MapPin, Bed, Bath, Layers, Filter, ShieldCheck, DollarSign, Calendar, X, Phone, ExternalLink, Info, User, Building, Lock } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 export interface RentalItem {
   listing_id: string;
@@ -36,6 +38,7 @@ export interface RentalItem {
 }
 
 export default function RentalsPage() {
+  const { isAuthenticated } = useAuth();
   const [rentals, setRentals] = useState<RentalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRental, setSelectedRental] = useState<RentalItem | null>(null);
@@ -329,36 +332,59 @@ export default function RentalsPage() {
 
               {/* Contact Footer */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[10px] text-slate-400 uppercase block">Posted By ({selectedRental.posted_by || 'owner'})</span>
-                    <span className="text-xs font-bold text-slate-900">{selectedRental.posted_by_name || 'Property Owner'}</span>
-                  </div>
-                </div>
+                {isAuthenticated ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <span className="text-[10px] text-slate-400 uppercase block">Posted By ({selectedRental.posted_by || 'owner'})</span>
+                        <span className="text-xs font-bold text-slate-900">{selectedRental.posted_by_name || 'Property Owner'}</span>
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <a
-                    href={`tel:${selectedRental.posted_by_contact}`}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span>Call {selectedRental.posted_by_contact || 'Owner'}</span>
-                  </a>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <a
+                        href={`tel:${selectedRental.posted_by_contact}`}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span>Call {selectedRental.posted_by_contact || 'Owner'}</span>
+                      </a>
 
-                  {selectedRental.listing_url && (
-                    <a
-                      href={selectedRental.listing_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+                      {selectedRental.listing_url && (
+                        <a
+                          href={selectedRental.listing_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-amber-50/80 border border-amber-200/70 rounded-2xl">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <div className="w-9 h-9 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center flex-shrink-0">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <div className="text-left text-xs">
+                        <span className="font-bold text-slate-800 block">Owner Contact Protected</span>
+                        <span className="text-[11px] text-slate-500">Sign in to view direct phone number & inquiry options</span>
+                      </div>
+                    </div>
+                    <Link
+                      href="/login?redirect=/rentals"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-sm uppercase tracking-wider flex-shrink-0"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Sign In to Call</span>
+                    </Link>
+                  </div>
+                )}
               </div>
 
             </motion.div>

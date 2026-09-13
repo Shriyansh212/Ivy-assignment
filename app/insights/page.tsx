@@ -1,14 +1,17 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import NeuralNetworkCanvas from '@/components/3d/NeuralNetworkCanvas';
-import { BarChart3, ShieldCheck, Building2, FileSpreadsheet } from 'lucide-react';
+import { BarChart3, ShieldCheck, Building2, FileSpreadsheet, Lock, KeyRound } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import answersData from '@/answers.json';
 import findingsData from '@/findings.json';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function InsightsPage() {
+  const { isAuthenticated } = useAuth();
   const answers = answersData;
   const findings = findingsData;
 
@@ -57,8 +60,11 @@ export default function InsightsPage() {
           </div>
         </div>
 
-        {/* 10 Assessment Answers Bento Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* Intelligence Content Wrapper */}
+        <div className="relative">
+          <div className={`space-y-8 transition-all ${!isAuthenticated ? 'filter blur-[5px] select-none pointer-events-none opacity-40' : ''}`}>
+            {/* 10 Assessment Answers Bento Stats Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           
           <div className="bg-white/80 p-5 rounded-2xl border border-slate-200/80 shadow-bento-card space-y-1 backdrop-blur-md">
             <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider block">Q1 Total Listings</span>
@@ -245,7 +251,35 @@ export default function InsightsPage() {
 
         </div>
 
-      </main>
+      </div>
+
+      {!isAuthenticated && (
+        <div className="absolute inset-x-0 top-12 bottom-0 z-30 flex items-start justify-center pt-8 px-4 pointer-events-none">
+          <div className="max-w-lg w-full bg-white/95 border border-slate-200/90 p-8 rounded-3xl shadow-2xl backdrop-blur-2xl text-center space-y-4 pointer-events-auto">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-7 h-7" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Empirical Intelligence Gated
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+              Comprehensive API audit distributions, live pricing discrepancy findings, and raw project mismatch intelligence are reserved for authenticated accounts.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/login?redirect=/insights"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md uppercase tracking-wider"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>Sign In with Demo Account</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+
+  </main>
+</div>
+);
 }
